@@ -27,7 +27,6 @@ const Form: () => React$Node = props => {
           setFieldTouched,
           touched,
           isValid,
-          handleSubmit,
         }) => (
           <View
             style={
@@ -91,7 +90,7 @@ const Form: () => React$Node = props => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.logIn}
-              onPress={handleSubmit}
+              onPress={() => props.navigation.navigate('Home')}
               disabled={!isValid}>
               <Text style={styles.logInText}>Sign in</Text>
             </TouchableOpacity>

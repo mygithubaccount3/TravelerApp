@@ -3,7 +3,7 @@ import {Dimensions, Image, StyleSheet, Text, View} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import Form from '../components/Form';
 
-const Login: () => React$Node = () => {
+const Login: () => React$Node = (props) => {
   const isPortrait = () => {
     const dim = Dimensions.get('screen');
     return dim.height >= dim.width;
@@ -38,7 +38,7 @@ const Login: () => React$Node = () => {
       <Text style={styles.description}>
         Travellers from across the globe.{orientation}
       </Text>
-      <Form orientation={orientation} />
+      <Form orientation={orientation} navigation={props.navigation} />
     </View>
   );
 };
