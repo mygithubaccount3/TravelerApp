@@ -1,4 +1,4 @@
-package com.travellerapp;
+package com.travelerapp;
 
 import android.app.Application;
 import android.content.Context;
