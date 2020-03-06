@@ -1,8 +1,14 @@
-export function data(state = [], action) {
-    switch (action.type) {
-        case 'FETCH_DATA_SUCCESS':
-            return action.items;
+const initialState = {
+  isSignedIn: false
+};
+
+export default function status (state = initialState, action) {
+	switch (action.type) {
+        case 'SET_STATUS':
+            return Object.assign({}, state, {
+      			isSignedIn: action.isSignedIn
+    		});
         default:
             return state;
     }
-}
+};

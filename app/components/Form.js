@@ -7,102 +7,137 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {connect} from "react-redux";
+import {setStatus} from "../actions/getStatusAction";
+import rlm from '../realm';
 
-const Form: () => React$Node = props => {
-  return (
-    <>
-      <Formik
-        initialValues={{username: '', password: ''}}
-        validationSchema={yup.object().shape({
-          username: yup.string().required(),
-          password: yup.string().required(),
-        })}>
-        {({
-          values,
-          handleChange,
-          errors,
-          setFieldTouched,
-          touched,
-          isValid,
-        }) => (
-          <View
-            style={
-              props.orientation === 'portrait'
-                ? styles.form
-                : styles.formLandscape
-            }>
-            <View
-              style={
-                props.orientation === 'portrait'
-                  ? styles.inputWrapper
-                  : [styles.inputWrapper, styles.inputWrapperLandscape]
-              }>
-              <Image source={require('../img/user.png')} />
-              <TextInput
-                value={values.username}
-                onChangeText={handleChange('username')}
-                onBlur={() => setFieldTouched('username')}
-                style={styles.input}
-                placeholder="Username"
-                placeholderTextColor={'white'}
-              />
-            </View>
-            {touched.username && errors.username && (
-              <Text style={styles.errorPortrait}>{errors.username}</Text>
-            )}
-
-            <View
-              style={
-                props.orientation === 'portrait'
-                  ? styles.inputWrapper
-                  : [styles.inputWrapper, styles.inputWrapperLandscape]
-              }>
-              <Image source={require('../img/pass.png')} />
-              <TextInput
-                style={
-                  props.orientation === 'portrait'
-                    ? styles.input
-                    : [styles.input, styles.inputLandscape]
-                }
-                onChangeText={handleChange('password')}
-                onBlur={() => setFieldTouched('password')}
-                value={values.password}
-                placeholder="Password"
-                placeholderTextColor={'white'}
-                secureTextEntry={true}
-              />
-            </View>
-            {touched.password && errors.password && (
-              <Text
-                style={
-                  props.orientation === 'portrait'
-                    ? styles.errorPortrait
-                    : [styles.errorMessage, styles.errorPassword]
-                }>
-                {errors.password}
-              </Text>
-            )}
-            <TouchableOpacity>
-              <Text style={styles.recoverLink}>Forgot password?</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.logIn}
-              onPress={() => props.navigation.navigate('Home')}
-              disabled={!isValid}>
-              <Text style={styles.logInText}>Sign in</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+function Form (props) {
+	/*const recoverPassword = () => props.navigation.navigate('Signup')*/
+	
+	const handleSubmit = values => {
+		
+		if (values.username.length > 0 && values.password.length > 0) {
+			if(rlm.objects('Users').filtered(`username = "${values.username}" AND password = "${values.password}"`)[0].username) {
+				setTimeout(() => {
+					props.setStatus(true)
+					/*props.navigation.navigate('Home')*/
+				}, 3000)
+			}
+      	}
+	}
+	    return (
+	    	<>
+        		<Formik
+        			initialValues={{username: '', password: ''}}
+					onSubmit={values => handleSubmit(values)}
+        			validationSchema={yup.object().shape({
+          				username: yup.string().required(),
+          				password: yup.string().required(),
+        			})}
+				>
+			        {({
+			          values,
+					  handleChange,
+					  handleSubmit,
+			          errors,
+			          setFieldTouched,
+			          touched,
+			          isValid,
+					  isSubmitting
+			        }) => (
+			          <View
+			            style={
+			              props.orientation === 'portrait'
+			                ? styles.form
+			                : styles.formLandscape
+			            }>
+			            <View
+			              style={
+			                props.orientation === 'portrait'
+			                  ? styles.inputWrapper
+			                  : [styles.inputWrapper, styles.inputWrapperLandscape]
+			              }>
+			              <Image source={require('../img/user.png')} />
+			              <TextInput
+							name='username'
+			                value={values.username}
+			                onBlur={() => setFieldTouched('username')}
+							onChangeText={handleChange('username')}
+			                style={styles.input}
+			                placeholder="Username"
+			                placeholderTextColor={'white'}
+			              />
+			            </View>
+			            {touched.username && errors.username && (
+			              <Text style={styles.errorPortrait}>{errors.username}</Text>
+			            )}
+			
+			            <View
+			              style={
+			                props.orientation === 'portrait'
+			                  ? styles.inputWrapper
+			                  : [styles.inputWrapper, styles.inputWrapperLandscape]
+			              }>
+			              <Image source={require('../img/pass.png')} />
+			              <TextInput
+			                style={
+			                  props.orientation === 'portrait'
+			                    ? styles.input
+			                    : [styles.input, styles.inputLandscape]
+			                }
+							name='password'
+							value={values.password}
+			                onBlur={() => setFieldTouched('password')}
+							onChangeText={handleChange('password')}
+			                placeholder="Password"
+			                placeholderTextColor={'white'}
+			                secureTextEntry={true}
+			              />
+			            </View>
+			            {touched.password && errors.password && (
+			              <Text
+			                style={
+			                  props.orientation === 'portrait'
+			                    ? styles.errorPortrait
+			                    : [styles.errorMessage, styles.errorPassword]
+			                }>
+			                {errors.password}
+			              </Text>
+			            )}
+			            <TouchableOpacity>
+			              <Text style={styles.recoverLink}>Forgot password?</Text>
+			            </TouchableOpacity>
+			            <TouchableOpacity
+			              style={styles.logIn}
+			              onPress={handleSubmit}
+			              disabled={!isValid}>
+			              <Text style={styles.logInText}>Sign in</Text>
+			            </TouchableOpacity>
+			          </View>
+			        )}
       </Formik>
       <TouchableOpacity>
         <Text style={styles.registration}>Don’t have an account? Sign up</Text>
       </TouchableOpacity>
     </>
+	    )
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    setStatus: status => dispatch(setStatus(status))
+  };
+}
+
+export default connect(null, mapDispatchToProps)(Form);
+/*const Form: () => React$Node = props => {
+  return (
+    
   );
-};
+};*/
 
 const styles = StyleSheet.create({
   inputWrapper: {
@@ -189,5 +224,3 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
-
-export default Form;

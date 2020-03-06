@@ -38,7 +38,7 @@ const Login: () => React$Node = (props) => {
       <Text style={styles.description}>
         Travellers from across the globe.{orientation}
       </Text>
-      <Form orientation={orientation} navigation={props.navigation} />
+      <Form orientation={orientation} />
     </View>
   );
 };
