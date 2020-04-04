@@ -1,6 +1,7 @@
-export function setStatus(isSignedIn) {
+export function setStatus(isSignedIn, username) {
     return {
         type: 'SET_STATUS',
-        isSignedIn
+        isSignedIn,
+		username
     };
 }

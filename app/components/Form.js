@@ -2,37 +2,41 @@ import React from 'react';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+	Alert,
+	ActivityIndicator,
+	Image,
+	StyleSheet,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {connect} from "react-redux";
 import {setStatus} from "../actions/getStatusAction";
-import rlm from '../realm';
+import {signIn} from '../allSchemas';
 
 function Form (props) {
 	/*const recoverPassword = () => props.navigation.navigate('Signup')*/
 	
-	const handleSubmit = values => {
-		
+	const handleSubmit = (values, setSubmitting) => {
 		if (values.username.length > 0 && values.password.length > 0) {
-			if(rlm.objects('Users').filtered(`username = "${values.username}" AND password = "${values.password}"`)[0].username) {
+			signIn(values.username, values.password).then(() => {
 				setTimeout(() => {
-					props.setStatus(true)
+					props.setStatus(true, values.username)
 					/*props.navigation.navigate('Home')*/
 				}, 3000)
-			}
+			}, () => {
+				Alert.alert("User is not found");
+				setSubmitting(false)
+			});
       	}
 	}
 	    return (
 	    	<>
         		<Formik
         			initialValues={{username: '', password: ''}}
-					onSubmit={values => handleSubmit(values)}
+					onSubmit={(values, {setSubmitting}) => handleSubmit(values, setSubmitting)}
         			validationSchema={yup.object().shape({
           				username: yup.string().required(),
           				password: yup.string().required(),
@@ -107,37 +111,32 @@ function Form (props) {
 			                {errors.password}
 			              </Text>
 			            )}
-			            <TouchableOpacity>
+			            <TouchableOpacity style={{marginBottom: 47}}>
 			              <Text style={styles.recoverLink}>Forgot password?</Text>
 			            </TouchableOpacity>
 			            <TouchableOpacity
 			              style={styles.logIn}
 			              onPress={handleSubmit}
-			              disabled={!isValid}>
-			              <Text style={styles.logInText}>Sign in</Text>
+			              disabled={!isValid || isSubmitting}>
+			              	{isSubmitting ? <ActivityIndicator size="small" color="#00ff00" /> : <Text style={styles.logInText}>Sign in</Text>}
 			            </TouchableOpacity>
 			          </View>
 			        )}
-      </Formik>
-      <TouchableOpacity>
-        <Text style={styles.registration}>Don’t have an account? Sign up</Text>
-      </TouchableOpacity>
-    </>
+				</Formik>
+			    <TouchableOpacity>
+			        <Text style={styles.registration}>Don’t have an account? Sign up</Text>
+			    </TouchableOpacity>
+    		</>
 	    )
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    setStatus: status => dispatch(setStatus(status))
+    setStatus: (status, username) => dispatch(setStatus(status, username))
   };
 }
 
 export default connect(null, mapDispatchToProps)(Form);
-/*const Form: () => React$Node = props => {
-  return (
-    
-  );
-};*/
 
 const styles = StyleSheet.create({
   inputWrapper: {
@@ -180,7 +179,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     opacity: 0.7,
     fontFamily: 'Lato-Bold',
-    marginBottom: 47,
   },
   logIn: {
     borderColor: Colors.white,
